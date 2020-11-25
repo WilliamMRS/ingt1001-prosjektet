@@ -206,31 +206,64 @@ def c_to_f(degrees_in_c):
     return degrees_in_f
 df_complete_cont["TAVG"] = c_to_f(df_complete_cont["TAVG"])
 
+
 #%%
+#Problem 2
+filtered_df =  df_complete_cont["TAVG"] > 134 #verdien 134 er 56.7 fahrenheit. endret dermed alle verdier under 134 grader til False
+a = filtered_df.value_counts() # Ser hvor mage True verdier jeg får
+# Dette samsvarer ikke med dataen ettersom vi tok alle verdiene til fahrenheit og noe av dataen som allerede var der var fahrenheit fra før.
+
+#%%
+#oppgave 3
+
+def averagetemp(kontinent):
+
+    continent_average =df_complete_cont[df_complete_cont["Continent"].str.contains(kontinent)]
+    Temperature = continent_average["TAVG"]
+    average= Temperature.mean()
+    return average
+
+Temperaturer = []
+for continent in continents_in_df:
+    Temperaturer.append({"kontinent" : continent, "Gjennomsnitts-temperatur": averagetemp(str(continent))})
+
+continent_average =(Temperaturer)
+
+#Kan se at Africa har den strøste gjennomsnitts tempertaruen og Europa har den minste gjennomsnittstemperaturen.
+
+
+#%%
+#Oppgave 4
+
 import matplotlib.pyplot as plt
 
-def land_in_continent(continent):
-    land_in_continent = df_complete_cont.loc[df_complete_cont["Continent"]==continent]["Country"].unique()
-    return(land_in_continent)
+def graph(kontinenter):
+    # Prepare plots
+    fig, axis = plt.subplots(5, sharex=True, sharey=True, figsize=(15,15))
+    continentIndex = 0
 
-countries_europe = land_in_continent("Europe")
-
-def temp_of_countries(countries):
-    list_of_series = []
-    for country in countries:
-        country_df = df_complete_cont.loc[df_complete_cont["Country"]==country]
-        list_of_series.append(country_df["Country", "TAVG"])
-    return list_of_series
-
-average_temp_of_countries(countries_europe)
-
-
-for country_temp in average_temp_of_countries(countries_europe):
-    print(country_temp[0], country_temp[1])
+    for kontinent in kontinenter:
+        print(kontinent)
+        # Grab correct continent
+        df_countries = df_country_continent.loc[df_country_continent["continent"]==kontinent]
+        fix_index(df_countries) # prepares df_countries for list_countries
+        list_countries = df_countries["country"] # Create list of countries
     
-    
-#def plot_avg_temps_in_continent(continent):
-    
+        for i in range(len(list_countries)):
+            data =  df_complete_cont[df_complete_cont["Country"].str.contains(list_countries[i])]
+            y = data["TAVG"]
+            x = np.arange(len(y))
+            if len(y) != 0:
+                axis[continentIndex].plot(x, y, label=list_countries[i])
+        
+        # Set title, add legend
+        axis[continentIndex].set_title(kontinent)
+        axis[continentIndex].legend(loc="upper right")
+        continentIndex += 1
+    return axis
+
+graph(["Europe", "Asia", "Africa", "Oceania", "Americas"])
+
 
 
 
