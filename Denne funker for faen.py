@@ -237,59 +237,35 @@ continent_average =(Temperaturer)
 
 import matplotlib.pyplot as plt
 
-
 def graph(kontinenter):
+    # Prepare plots
+    fig, axis = plt.subplots(5, sharex=True, sharey=True, figsize=(15,15))
+    continentIndex = 0
+
     for kontinent in kontinenter:
+        print(kontinent)
+        # Grab correct continent
         df_countries = df_country_continent.loc[df_country_continent["continent"]==kontinent]
-        
-        fix_index(df_countries)
-        
-        list_countries = df_countries["country"]
-       
-        fig,axis = plt.subplots(2,2)
-        
+        fix_index(df_countries) # prepares df_countries for list_countries
+        list_countries = df_countries["country"] # Create list of countries
+    
         for i in range(len(list_countries)):
-            
             data =  df_complete_cont[df_complete_cont["Country"].str.contains(list_countries[i])]
-        
             y = data["TAVG"]
             x = np.arange(len(y))
-           
             if len(y) != 0:
-                
-                axis[0,0].plot(x, y, label=list_countries[i])
-        plt.legend(loc="upper right")
-            
+                axis[continentIndex].plot(x, y, label=list_countries[i])
+        
+        # Set title, add legend
+        axis[continentIndex].set_title(kontinent)
+        axis[continentIndex].legend(loc="upper right")
+        continentIndex += 1
     return axis
 
-graph(["Europe", "Asia"])
+graph(["Europe", "Asia", "Africa", "Oceania", "Americas"])
 
 
 
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
-    
     
     
    # plt.figure(figsize = [10,4])
