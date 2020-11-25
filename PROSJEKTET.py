@@ -1,7 +1,7 @@
 
 from sense_hat import SenseHat
 sh = SenseHat()
-from time import sleep, strftime
+from time import sleep
 from datetime import datetime as dt
 import os
 import csv
@@ -10,16 +10,16 @@ sh.set_imu_config(False, False, True)
 sh.clear()
 
 def write_to_logfile(data):
-  """ Function for writing single data to logfile. in  dd/mm/yy t/m/s"""
+  """ Function for writing single data to logfile. with dd/mm/yy t/m/s"""
   now = dt.now().strftime("%d/%m/%Y %H:%M:%S")
   with open("datasett.csv", "a") as file:
     file.write(str(now) + ", " + str(data) + "\n")
 
-def write(temp, hum, pres, accel):
-  """ Takes four values and save it to a .csv file"""
+def write(temp_average, temp_hum, temp_pres, hum, pres, accel):
+  """ Takes six values and saves it to a .csv file with date and timestamp"""
   date = dt.now().strftime("%d/%m/%Y")
   time = dt.now().strftime("%H:%M:%S")
-  data = [(date), (time), (temp), (hum), (pres), (accel) ]
+  data = [(date), (time), (temp_average), (temp_hum), (temp_pres), (hum), (pres), (accel) ]
   desired_path = '/home/bendin/'
   file_path = os.path.join(desired_path, "testsett2.csv")
   with open(file_path, "a") as csvfile:
@@ -28,13 +28,12 @@ def write(temp, hum, pres, accel):
     return (csvfile)
 
 def show_on_matrix(data):
-  """ For    vise frem data p   sensehat"""
+  """ Function for showing data as text on sensehat"""
   sh.show_message("%.1f C" % data, scroll_speed=0.10, text_colour=[0, 255, 0])
 
 # Enviromental sensors
 def sensor_temp_average():
-  """ Gir tilbake gjennomsnittstemperaturen av A ant m  linger med 0.25s mellomrom.
-  Henter data fra b  de humidity- og pressure sensor."""
+  """ Calculates an average for temperature between humidity and rpessure sensor."""
   A = 5
   temp_sum = 0
   t1 = sh.get_temperature_from_humidity()
@@ -46,8 +45,30 @@ def sensor_temp_average():
   temp_sum = temp_sum / A
   return (temp_sum)
 
+def temp_hum():
+  """ Gets temperature from humidity sensor. average from A number of measurements"""
+  A = 5
+  temp_sum = 0
+  t = sh.get_temperature_from_humidity()
+  for _ in range (0, A):
+    temp_sum += t
+    sleep(0.05)
+  temp_sum = temp_sum / A
+  return (temp_sum)
+
+def temp_pres():
+  """ Gets temperature from pressure sensor. average from A number of measurements"""
+  A = 5
+  temp_sum = 0
+  t = sh.get_temperature_from_pressure()
+  for _ in range (0, A):
+    temp_sum += t
+    sleep(0.05)
+  temp_sum = temp_sum / A
+  return (temp_sum)
+
 def sensor_hum_average():
-  """ Gj  r A ant m  linger av luftfuktighet med 0.25s mellom hver m  ling"""
+  """ Measure humidity A number of times. Returns average."""
   A = 5
   hum = 0
   h = sh.get_humidity()
@@ -58,7 +79,7 @@ def sensor_hum_average():
   return float(hum)
 
 def sensor_pres_average():
-  """" Gj  r A ant ml  inger av lufttrykk med 0.25s pause mellom hver m  ling"""
+  """" Measure pressure A number of times. Returns average."""
   A = 5
   pres = 0
   h = sh.get_pressure()
@@ -71,7 +92,7 @@ def sensor_pres_average():
 # IMU sensors 
 
 def acceleration():
-  """ Gets acceleration value from sensehat. Does A number of measurements and returns average in m/s^
+  """ Gets acceleration value from sensehat. Does A number of measurements and returns average in m/s^2
   """
   A = 4
   average_Gs = 0
@@ -83,17 +104,16 @@ def acceleration():
   mps2 = (average_Gs * 9.80665)
   return (mps2)
 
-# Try to compensate for CPU temp. Unsure if we need this.
 # Internal temperature   
 def cpu_temp():
-  """ Gets CPU temp from Raspberry"""
+  """ Gets CPU temp from Raspberry and return it as a float"""
   temp = os.popen("vcgencmd measure_temp").readline()
   temp = (temp.replace("temp=",""))
   temp = (temp.replace("'C",""))
   return float(temp)
 
 def temp_calibrated(sensor, CPU):
-  """ Funksjon for kalibrering av m  linger. """
+  """Function for calibrating measured temperature. Takes sensor and CPU temp.  """
   FACTOR = 1.12 #5.446
   temp_calibrated = sensor - (((CPU) - sensor)/FACTOR)
   return (temp_calibrated)
@@ -101,17 +121,19 @@ def temp_calibrated(sensor, CPU):
 
 # Main code for executing logging 
 while True:
-  temp = sensor_temp_average()
-  calibrated = temp_calibrated(sensor_temp_average(), cpu_temp())
+  temp_average = sensor_temp_average()
+  cpu_temp = cpu_temp()
+  temp_hum = temp_hum()
+  temp_pres = temp_pres()
   hum = sensor_hum_average()
   pres = sensor_pres_average()
   accel = acceleration()
-
+  
   time = dt.now().strftime("%H:%M:%S")
   date = dt.now().strftime("%d/%m/%Y")
-  write(temp, hum, pres, accel)
+  write(temp_average, temp_hum, temp_pres, hum, pres, accel)
 
-  print (date, time, calibrated, hum, pres, accel)
+  print (date, time, temp_average, temp_hum, temp_pres, hum, pres, accel)
   sleep(0.05)
 
 
