@@ -122,9 +122,9 @@ def temp_calibrated(sensor, CPU):
 # Main code for executing logging 
 while True:
   temp_average = sensor_temp_average()
-  cpu_temp = cpu_temp()
-  temp_hum = temp_hum()
-  temp_pres = temp_pres()
+  cpu = cpu_temp()
+  hum_temp = temp_hum()
+  pres_temp = temp_pres()
   hum = sensor_hum_average()
   pres = sensor_pres_average()
   accel = acceleration()
@@ -133,7 +133,7 @@ while True:
   date = dt.now().strftime("%d/%m/%Y")
   write(temp_average, temp_hum, temp_pres, hum, pres, accel)
 
-  print (date, time, temp_average, temp_hum, temp_pres, hum, pres, accel)
+  print (date, time, temp_average, hum_temp, pres_temp, hum, pres, accel)
   sleep(0.05)
 
 
