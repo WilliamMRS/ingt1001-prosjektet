@@ -207,3 +207,12 @@ def f_to_c(degrees_in_f):
     degrees_in_c = (degrees_in_f-32)*(5/9)
     return round(degrees_in_c,2)
 #df_complete_cont["TAVG"] = c_to_f(df_complete_cont["TAVG"])
+
+#%%
+def average_column_values(df, by_column, average_column):
+    minValue = 0
+    maxValue = 0
+    for unique_value in column_values(df, column):
+        if 
+    
+    
