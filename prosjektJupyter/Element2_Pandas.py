@@ -144,14 +144,16 @@ def df_make_default(df):
 
 #%%
 #15:
-# Skal kombinere alle df-ene til en supermega-df kalt df_complete
+# Skal kombinere alle df-ene til en df kalt df_complete
 
-def making_of_df_complete():
-    # Lager først en df_complete med alle df-ene untatt trondheim:
-    df_complete = pd.concat(all_dfs, axis = 0)
+def combine_dfs_in_list(dfs, df = pd.DataFrame):
+    # df er som regel satt til å være tom, dersom df-en ikke er tom så må vi legge den til i listen dfs.
+    if not df.empty:
+        dfs.append(df)
     
-    # Legger så trondheim df-en til i df_complete:
-    df_complete = pd.concat([df_complete, df_trondheim], axis = 0)
+    
+    # Lager først en df_complete med alle df-ene untatt trondheim:
+    df_complete = pd.concat(dfs, axis = 0)
     
     # Og fikser så index-verdiene:
     fix_index(df_complete)
@@ -200,5 +202,8 @@ def column_values(df, column): # Returnerer alle unike verdier fra en spesifikk 
 #22:
 def c_to_f(degrees_in_c):
     degrees_in_f = round(degrees_in_c * (9/5) + 32,2)
-    return degrees_in_f
+    return round(degrees_in_f,2)
+def f_to_c(degrees_in_f):
+    degrees_in_c = (degrees_in_f-32)*(5/9)
+    return round(degrees_in_c,2)
 #df_complete_cont["TAVG"] = c_to_f(df_complete_cont["TAVG"])
