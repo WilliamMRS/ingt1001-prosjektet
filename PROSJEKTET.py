@@ -1,4 +1,3 @@
-
 from sense_hat import SenseHat
 sh = SenseHat()
 from time import sleep
@@ -15,13 +14,13 @@ def write_to_logfile(data):
   with open("datasett.csv", "a") as file:
     file.write(str(now) + ", " + str(data) + "\n")
 
-def write(temp_average, temp_hum, temp_pres, hum, pres, accel):
+def write(temp_hum, temp_pres, hum, pres, accel):
   """ Takes six values and saves it to a .csv file with date and timestamp"""
   date = dt.now().strftime("%d/%m/%Y")
   time = dt.now().strftime("%H:%M:%S")
-  data = [(date), (time), (temp_average), (temp_hum), (temp_pres), (hum), (pres), (accel) ]
+  data = [(date), (time), (temp_hum), (temp_pres), (hum), (pres), (accel) ]
   desired_path = '/home/bendin/'
-  file_path = os.path.join(desired_path, "testsett2.csv")
+  file_path = os.path.join(desired_path, "Maalinger.csv")
   with open(file_path, "a") as csvfile:
     csvwriter = csv.writer(csvfile)
     csvwriter.writerow(data)
@@ -49,12 +48,25 @@ def temp_hum():
   """ Gets temperature from humidity sensor. average from A number of measurements"""
   A = 5
   temp_sum = 0
-  t = sh.get_temperature_from_humidity()
+  t1 = sh.get_temperature_from_humidity()
+  t2 = sh.get_temperature_from_pressure()
+  t = (t1+t2)/2
   for _ in range (0, A):
     temp_sum += t
     sleep(0.05)
   temp_sum = temp_sum / A
   return (temp_sum)
+
+def temp_hum():
+  """ Gets temperature from humidity sensor. average from A number of measurements"""
+  A = 5
+  temp_sum = 0
+  t = sh.get_temperature_from_humidity()
+  for _ in range (0, A):
+    temp_sum += t
+    sleep(0.05)
+  temp_sum = temp_sum / A
+  return float(temp_sum)
 
 def temp_pres():
   """ Gets temperature from pressure sensor. average from A number of measurements"""
@@ -65,7 +77,7 @@ def temp_pres():
     temp_sum += t
     sleep(0.05)
   temp_sum = temp_sum / A
-  return (temp_sum)
+  return float(temp_sum)
 
 def sensor_hum_average():
   """ Measure humidity A number of times. Returns average."""
@@ -75,7 +87,7 @@ def sensor_hum_average():
   for _ in range (0, A):
     hum += h
     sleep(0.05)
-  hum = hum / A
+    hum = hum / A
   return float(hum)
 
 def sensor_pres_average():
@@ -128,16 +140,10 @@ while True:
   hum = sensor_hum_average()
   pres = sensor_pres_average()
   accel = acceleration()
-  
+
   time = dt.now().strftime("%H:%M:%S")
   date = dt.now().strftime("%d/%m/%Y")
-  write(temp_average, temp_hum, temp_pres, hum, pres, accel)
+  write(hum_temp, pres_temp, hum, pres, accel)
 
   print (date, time, temp_average, hum_temp, pres_temp, hum, pres, accel)
   sleep(0.05)
-
-
-
-
-
-
