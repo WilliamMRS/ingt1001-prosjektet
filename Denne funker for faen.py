@@ -11,7 +11,7 @@ import numpy as np
 #1:
 
 #importerer datafilen:
-df_opg1 = pd.read_csv('./Datasets/Weather/2342202.csv')
+df_opg1 = pd.read_csv('/Datasets/Weather/2342202.csv')
 
 #%%
 #2:
@@ -276,3 +276,7 @@ graph(["Europe", "Asia", "Africa", "Oceania", "Americas"])
   #  plt.xlabel('Years')
     #plt.ylabel('Consumption in TWh Across the World')
    # plt.title('Consumption in TWh Across the World in US, that are over average')
+   
+   
+   
+   

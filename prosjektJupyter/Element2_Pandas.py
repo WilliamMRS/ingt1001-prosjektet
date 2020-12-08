@@ -207,3 +207,14 @@ def f_to_c(degrees_in_f):
     degrees_in_c = (degrees_in_f-32)*(5/9)
     return round(degrees_in_c,2)
 #df_complete_cont["TAVG"] = c_to_f(df_complete_cont["TAVG"])
+
+#%%
+#Problem 2
+def Filtered(yolo):
+    
+
+
+filtered_df =  df_complete_cont["TAVG"] > 134 #verdien 134 er 56.7 fahrenheit. endret dermed alle verdier under 134 grader til False
+a = filtered_df.value_counts() # Ser hvor mage True verdier jeg får
+# Dette samsvarer ikke med dataen ettersom vi tok alle verdiene til fahrenheit og noe av dataen som allerede var der var fahrenheit fra før.
+
