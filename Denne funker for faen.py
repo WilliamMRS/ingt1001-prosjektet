@@ -11,7 +11,7 @@ import numpy as np
 #1:
 
 #importerer datafilen:
-df_opg1 = pd.read_csv('/Datasets/Weather/2342202.csv')
+df_opg1 = pd.read_csv('./Datasets/Weather/2342202.csv')
 
 #%%
 #2:
