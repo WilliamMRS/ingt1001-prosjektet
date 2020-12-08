@@ -209,10 +209,39 @@ def f_to_c(degrees_in_f):
 #df_complete_cont["TAVG"] = c_to_f(df_complete_cont["TAVG"])
 
 #%%
-def average_column_values(df, by_column, average_column):
-    minValue = 0
-    maxValue = 0
-    for unique_value in column_values(df, column):
-        if 
+#3:
+def average_temp_by_continent(df, list_of_continents):
+    list_of_temperatures = []
+    for continent in list_of_continents:
+        average_temp = df[df["Continent"] == continent]["TAVG"].mean()
+        list_of_temperatures.append((continent, average_temp))
+    return list_of_temperatures
+
+#%%
+#4:
+import matplotlib.pyplot as plt
+def graph(df, kontinenter):
+    # Prepare plots
+    fig, axis = plt.subplots(5, sharex=True, sharey=True, figsize=(15,15))
+    continentIndex = 0
+
+    for kontinent in kontinenter:
+        print(kontinent)
+        # Grab correct continent
+        df_countries = df.loc[df["Continent"]==kontinent]
+        fix_index(df) # prepares df_countries for list_countries
+        list_countries = df["Country"] # Create list of countries
     
+        for i in range(len(list_countries)):
+            data =  df[df["Country"].str.contains(list_countries[i])]
+            y = data["TAVG"]
+            x = np.arange(len(y))
+            if len(y) != 0:
+                axis[continentIndex].plot(x, y, label=list_countries[i])
+        
+        # Set title, add legend
+        axis[continentIndex].set_title(kontinent)
+        axis[continentIndex].legend(loc="upper right")
+        continentIndex += 1
+    return axis
     
