@@ -8,17 +8,18 @@ Created on Mon Dec  7 11:32:31 2020
 
 import pandas as pd
 import matplotlib.pyplot as plt
+import numpy as np
 import random
 import calendar
 
 #Importere dataset
 
-df = pd.read_csv("/Users/erlingkornstadsmenes/Documents/GitHub/ingt1001-prosjektet/maalinger.csv")
+df = pd.read_csv("/Users/erlingkornstadsmenes/Documents/GitHub/ingt1001-prosjektet/Datasets/Maalinger.csv")
 df.columns = ["Date", "Time", "Temp_hum", "Temp_pres", "Humidity", "Pressure", "Acceleration"]
 df["Date"] = pd.to_datetime(df["Date"])
 
 
-df.drop_duplicates() #Fjerner duplikatverdier
+df.drop_duplicates() #Fjerne duplikatverdier
 
 
 # Separerer målingene utifra hvilke dager de ble målt og lagrer en df fra
@@ -69,12 +70,15 @@ ukedag_df.head()
 df['Weekday'] = df['Date'].dt.dayofweek
 
 
-#Regne ut gjennomsnitt for renere plotting(hvor ofte bør gjennomsnittet regnes?)(test2)
+#Regne ut gjennomsnitt for renere plotting?(hvor ofte bør gjennomsnittet regnes?)(test2)
 
 
 #Plotte datasettene
 
 data_from_all_days[0].plot(x="Time", y=["Humidity", "Pressure", "Acceleration"])
+plt.show()
+
+data_from_all_days[0].plot(x="Time", y=["Pressure"])
 plt.show()
 
 data_from_all_days[0].plot(x="Time", y=["Humidity", "Acceleration"])
