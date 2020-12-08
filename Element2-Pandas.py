@@ -73,6 +73,17 @@ trinn5(df_opg1)
 def trinn6(df):  #bruker COUNTRY-kolonnen fra opg 4.
     df["COUNTRY"] = df["COUNTRY"].str.rsplit(' ', expand=True, n=1)[1] # Kun landskoder
 
+def alternativ1(df):
+    for n in range(0, len(df)):
+        df["COUNTRY"][n] = df["COUNTRY"][n].split(" ")[-1]
+        
+def alternativ2(df):
+    n = 0
+    while n < len(df):
+        df["COUNTRY"][n] = df["COUNTRY"][n].split(" ")[-1]
+        n+=1
+alternativ2(df_opg1)
+print(df_opg1["COUNTRY"][0].split(" ")[-1])
 #%%
 #7:
 #importerer en annen datafil
@@ -125,6 +136,7 @@ for df in all_dfs: # Kjører koden under en gang for hver df i listen all_dfs.
     
     # Trinn 6:
     trinn6(df)
+    
     
 #%%
 #12:
@@ -201,7 +213,11 @@ continents_in_df = column_values(df_complete_cont, "Continent")
 #%%
 #22:
 def c_to_f(degrees_in_c):
-    degrees_in_f = degrees_in_c * (9/5) + 32
+    degrees_in_f = degrees_in_c*(9/5)+32
     return degrees_in_f
-df_complete_cont["TAVG"] = c_to_f(df_complete_cont["TAVG"])
+def f_to_c(degrees_in_f):
+    degrees_in_c = (degrees_in_f-32)*(5/9)
+    return round(degrees_in_c, 2)
+#df_complete_cont["TAVG"] = c_to_f(df_complete_cont["TAVG"])
+df_complete_cont["TAVG"] = f_to_c(df_complete_cont["TAVG"])
 
