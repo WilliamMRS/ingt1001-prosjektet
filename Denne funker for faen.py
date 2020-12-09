@@ -128,7 +128,7 @@ for df in all_dfs: # Kjører koden under en gang for hver df i listen all_dfs.
     
 #%%
 #12:
-df_trondheim = pd.read_csv('./Datasets/Weather/extra/Trondheim.csv')
+df_trondheim = pd.read_csv('/Datasets/Weather/extra/Trondheim.csv')
 # Trinn 3:
 trinn3(df_trondheim)
 
