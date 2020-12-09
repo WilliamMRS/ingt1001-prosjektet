@@ -221,3 +221,26 @@ def f_to_c(degrees_in_f):
 #df_complete_cont["TAVG"] = c_to_f(df_complete_cont["TAVG"])
 df_complete_cont["TAVG"] = f_to_c(df_complete_cont["TAVG"])
 
+
+#%%
+
+def plot_compare_w_oslo_2019(dataframe,legendnavn):
+    from datetime import datetime as dt
+    import matplotlib.pyplot as plt
+    df_complete_cont = pd.read_csv("completeCont.csv")
+
+    ## Vi finner alle rader som er i Oslo, og har målinger fra 2019. 
+    df_oslo = df_complete_cont.copy()[df_complete_cont["Area"].str.contains("OSLO") & df_complete_cont["DATE"].str.contains("2019")]
+    df_oslo  = df_oslo.reset_index(drop=True)  ## Reset indeksene. 
+    
+    ## Vi omformaterer dato kolonnene i begge dataframes til datetime med bare datoen. 
+    dataframe["DATE"] = pd.to_datetime(dataframe["DATE"], format="%d.%m.%Y").dt.date  ## Vi har med format her pga den trodde default var mnd.dag.år
+    df_oslo["DATE"] = pd.to_datetime(df_oslo["DATE"]).dt.date
+    
+    ## Plotter inn begge dataframes, med y som temp, x som indeks.
+    dataframe.plot(ax=df_oslo.plot(), figsize=(20,5)).legend(["Oslo 2019",legendnavn])   
+    
+    ## Plotter inn hver dataframe i sin egen subplot. 
+    fig, ax = plt.subplots(2, 1, figsize=(20,10))
+    df_oslo.plot(x="DATE", y="TAVG", ax=ax[0]).legend(["Oslo 2019"])
+    dataframe.plot(x="DATE", y="TAVG", ax=ax[1], color="darkorange").legend([legendnavn])
