@@ -57,20 +57,21 @@ def findHighestValues(window, day, df):
         i += 1
     return highestValues
     
-def PlotDay(day_index, df, plotUpperAndLower, hline):
+# PLots a day from a dataframe.
+def PlotDay(df, day_index, column, yupper, ylower, plotUpperAndLower, hline):
     start = 0
-    stop = len(df[day_index]["Pressure"])
-    print(len(df[day_index]["Pressure"]))
+    stop = len(df[day_index][column])
+    print(len(df[day_index][column]))
     # Data to plot
     
     fig, ax=plt.subplots(figsize=(14,8))
     plt.title("26. Novemeber")
-    df[day_index].plot(x="Time", y=["Pressure"], ax=ax, color="green")
-    ax.set_ylabel = "Pressure"
+    df[day_index].plot(x="Time", y=[column], ax=ax, color="green")
+    ax.set_ylabel = column
     ax.set_xlim(start,stop)
     #maxY = data_from_all_days[day_index]["Pressure"][start:stop].max()
     #minY = data_from_all_days[day_index]["Pressure"][start:stop].min()
-    ax.set_ylim(1008,1017) # use integers to offset, making graph readable
+    ax.set_ylim(yupper, ylower) # use integers to offset, making graph readable
     
     if(hline):
         for line in hline:
@@ -83,7 +84,7 @@ def PlotDay(day_index, df, plotUpperAndLower, hline):
         ax3=ax.twiny()
         lvSeries.plot.line()
         ax3.set_xlabel = "Timestep (s)"
-        ax3.set_ylabel = "Pressure"
+        ax3.set_ylabel = column
         ax3.set_xlim(0,lvSeries.size)
         #maxY = lvSeries.max()
         #minY = lvSeries.min()
@@ -117,7 +118,7 @@ def createAdjustedGraphs(df):
     novemberData.append(df) #Grab data that's useful
     novemberData.append(df) #Duplicate more data for further analysis
     novemberData.append(df) #Duplicate more data for further analysis
-    minmaxseries = PlotDay(0, novemberData, True, False)
+    minmaxseries = PlotDay(novemberData, 0, "Pressure", 1008, 1017, True, False)
     # Finner summen av topp og bunn snitt verdier. Ser på forskjellen mellom de 10 blokkene og den alle siste som brukes
     # som referansepunkt
     referencePressureRange = minmaxseries[0][10] + minmaxseries[1][10]
@@ -138,7 +139,7 @@ def createAdjustedGraphs(df):
         else:
             i = 0 # reset i
             y += 1 # next window offset
-    PlotDay(1, novemberData, True, False)
+    PlotDay(novemberData, 1, "Pressure", 1008, 1017, True, False)
     # Now make a y = ax + b function between each line of the minmaxpoints (1800 window)
     # to push the lines. Take the total offset - the local offset.
     # For eksempel, om 0 er forskjøvet med 8 millibar og 1 er forskjøvet med 7 millibar er formelen:
@@ -156,10 +157,10 @@ def createAdjustedGraphs(df):
             i = 0 # reset i
             y += 1 # next window offset  
 
-    PlotDay(2, novemberData, True, False)
+    PlotDay(novemberData, 2, "Pressure", 1008, 1017, True, False)
     cutNovemberData = []
     cutNovemberData.append(novemberData[2].iloc[0:20300])
-    PlotDay(0, cutNovemberData, True, floorLevels)
+    PlotDay(cutNovemberData, 0, "Pressure", 1008, 1017, True, floorLevels)
     return cutNovemberData
     
 cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300])  
@@ -211,7 +212,7 @@ def modifyPressureGraph():
     return digitizedNovemberData
 
 digitizedNovemberData = modifyPressureGraph()
-PlotDay(0, digitizedNovemberData, False, floorLevels)
+PlotDay(digitizedNovemberData, 0, "Pressure", 1008, 1017, False, floorLevels)
 print(digitizedNovemberData[0].describe())
 # Her ser vi at medianen er 1013.95, altså etasje 2
 print(digitizedNovemberData[0]["Pressure"].value_counts())
