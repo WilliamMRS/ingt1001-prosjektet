@@ -91,7 +91,7 @@ def PlotDay(day_index, df, plotUpperAndLower, hline):
     ax.set_xlim(start,stop)
     #maxY = data_from_all_days[day_index]["Pressure"][start:stop].max()
     #minY = data_from_all_days[day_index]["Pressure"][start:stop].min()
-    ax.set_ylim(1010,1018) # use integers to offset, making graph readable
+    ax.set_ylim(1008,1017) # use integers to offset, making graph readable
     
     [1016.3,1015.75,1015.25,1014.95,1014.55,1013.95,1013.5,1013.2,1012.8] 
     if(hline):
