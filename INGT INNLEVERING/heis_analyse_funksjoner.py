@@ -36,8 +36,6 @@ def separate_by_column_values(df, column): # returnerer en liste med df-er
         df_n = df[df[column] == val]
         dfs.append(df_n)
     return dfs
-
-data_from_all_days = separate_by_column_values(df, "Date")
 #print(data_from_all_days)
 
 def findLowestValues(window, day, df):
@@ -152,8 +150,6 @@ def createAdjustedGraphs(df, dataRange):
     PlotDay(cutNovemberData, 0, "Pressure", True, floorLevels)
     return cutNovemberData
     
-cutNovemberData = createAdjustedGraphs(data_from_all_days[0].iloc[0:20300], 20300)
-    
 # We've compensated for the weather changing the ambient pressure by finding the min-max range and
 # aligning the datapoints to a fixed reference point, in this case the last 1800 datapoints.
 # This way, the pressure data represents each floor with more or less the same values, making it
@@ -197,6 +193,13 @@ def modifyPressureGraph(): # Kind of digitizes the previous graph
     resetDf = cutNovemberData[0].reset_index(drop=True)
     digitizedNovemberData[0].insert(1, "Time", resetDf["Time"], True)
     return digitizedNovemberData
+
+#def createBarGraphOfFloors():
+
+
+data_from_all_days = separate_by_column_values(df, "Date")
+
+cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300], 20300)
 
 digitizedNovemberData = modifyPressureGraph()
 digitizedNovemberData[0] = digitizedNovemberData[0][(digitizedNovemberData[0] != 0).all(1)] # Fjerner nullene
