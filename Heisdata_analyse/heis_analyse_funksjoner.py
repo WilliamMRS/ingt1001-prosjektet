@@ -111,7 +111,7 @@ def createAdjustedGraphs(df):
     novemberData.append(df), novemberData.append(df), novemberData.append(df) # Dataframes som blir brukt nedenunder
     minmaxseries = PlotDay(novemberData, 0, "Pressure", True, False)
     # Finner summen av topp og bunn snitt verdier. Ser på forskjellen mellom de 10 blokkene og den alle siste som brukes som referansepunkt
-    referencePressureRange = minmaxseries[0][10] + minmaxseries[1][10]
+    referencePressureRange = minmaxseries[0][len(minmaxseries[0])-1] + minmaxseries[1][len(minmaxseries[1])-1]
     offsetvals = []
     for i in range(0,11):
         offsetvals.append(referencePressureRange - (minmaxseries[0][i] + minmaxseries[1][i]))
