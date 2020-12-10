@@ -239,11 +239,9 @@ for value in (cutNovemberData[0]["Pressure"]):
             lowerdiff = abs(lowerval - value)
             if upperdiff > lowerdiff: # lowerdiff is closest, pick lowerval
                 newDataPoints.append(lowerval)
-                print("picked", lowerval, "for value", value)
                 break
             else:
                 newDataPoints.append(upperval)
-                print("picked", upperval, "for value", value)
                 break
 
 print(newDataPoints)
@@ -252,12 +250,15 @@ print(newDataPoints)
 digitizedNovemberData = []
 digitizedNovemberData.append(pd.DataFrame())
 digitizedNovemberData[0].insert(0, "Pressure", pd.Series(newDataPoints), True)
+
 resetDf = cutNovemberData[0].reset_index(drop=True)
 print(resetDf["Time"])
-digitizedNovemberData[0]["Time"] = resetDf["Time"]
+
+digitizedNovemberData[0].insert(1, "Time", resetDf["Time"], True)
 print(digitizedNovemberData[0].describe())
 
 PlotDay(0, digitizedNovemberData)
+
 
 
 
