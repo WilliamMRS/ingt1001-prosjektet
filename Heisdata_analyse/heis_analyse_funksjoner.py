@@ -61,17 +61,13 @@ def findHighestValues(window, day, df):
 def PlotDay(df, day_index, column, yupper, ylower, plotUpperAndLower, hline):
     start = 0
     stop = len(df[day_index][column])
-    print(len(df[day_index][column]))
-    # Data to plot
-    
+
     fig, ax=plt.subplots(figsize=(14,8))
     plt.title("26. Novemeber")
     df[day_index].plot(x="Time", y=[column], ax=ax, color="green")
     ax.set_ylabel = column
     ax.set_xlim(start,stop)
-    #maxY = data_from_all_days[day_index]["Pressure"][start:stop].max()
-    #minY = data_from_all_days[day_index]["Pressure"][start:stop].min()
-    ax.set_ylim(yupper, ylower) # use integers to offset, making graph readable
+    ax.set_ylim(yupper, ylower)
     
     if(hline):
         for line in hline:
@@ -80,26 +76,16 @@ def PlotDay(df, day_index, column, yupper, ylower, plotUpperAndLower, hline):
     if(plotUpperAndLower):
         lv = findLowestValues(1800, day_index, df)
         lvSeries = pd.Series(lv)
-        
         ax3=ax.twiny()
         lvSeries.plot.line()
         ax3.set_xlabel = "Timestep (s)"
         ax3.set_ylabel = column
-        ax3.set_xlim(0,lvSeries.size)
-        #maxY = lvSeries.max()
-        #minY = lvSeries.min()
-        #ax3.set_ylim(1008,1024) # use integers to offset, making graph readable
-        
-        
+        ax3.set_xlim(0,lvSeries.size)        
         hv = findHighestValues(1800, day_index, df)
         hvSeries = pd.Series(hv)
-        
         ax4 = ax3.twiny()
         hvSeries.plot.line(color="red")
         ax4.set_xlim(0,lvSeries.size)
-        #maxY = hvSeries.max()
-        #minY = hvSeries.min()
-        #ax4.set_ylim(1008,1024) # use integers to offset, making graph readable
     plt.show()
     if(plotUpperAndLower):
         return [hvSeries, lvSeries]
@@ -108,24 +94,17 @@ floorLevels = [1016.3,1015.75,1015.25,1014.95,1014.55,1013.95,1013.5,1013.2,1012
 # 9 etasjer, bestemt ved hjelp av å trekke lineære vannrette linjer over punkt hvor dataene platået
 
 def createAdjustedGraphs(df):
-    # Straighten graph, then cut lines to decide where the stories go.
-    # Reference point for straighten is at theend of the graph
-    # Cut away the last few datapoints before plotting day [7] 26. November
-    
     # finn stigningstallet til punktene fra min og max grafene og forskyv rådatapunktene basert på verdien til
     # min/max grafene i forhold til referansepunktet som er å slutten.
     novemberData = []
-    novemberData.append(df) #Grab data that's useful
-    novemberData.append(df) #Duplicate more data for further analysis
-    novemberData.append(df) #Duplicate more data for further analysis
+    novemberData.append(df), novemberData.append(df), novemberData.append(df) # Dataframes som blir brukt nedenunder
     minmaxseries = PlotDay(novemberData, 0, "Pressure", 1008, 1017, True, False)
-    # Finner summen av topp og bunn snitt verdier. Ser på forskjellen mellom de 10 blokkene og den alle siste som brukes
-    # som referansepunkt
+    # Finner summen av topp og bunn snitt verdier. Ser på forskjellen mellom de 10 blokkene og den alle siste som brukes som referansepunkt
     referencePressureRange = minmaxseries[0][10] + minmaxseries[1][10]
     offsetvals = []
     for i in range(0,11):
         offsetvals.append(referencePressureRange - (minmaxseries[0][i] + minmaxseries[1][i]))
-    # push all data up by the offsetvals (this is a crude method, but works for a simple approximation and proof of concept)
+    # Dytt all dataen opp med offsets (Ikke perfekt men er en god start)
     window = 1800 # Important that this is the same as the windows used for making mimmaxseries.
     i = 14
     y = 0
@@ -212,6 +191,7 @@ def modifyPressureGraph():
     return digitizedNovemberData
 
 digitizedNovemberData = modifyPressureGraph()
+digitizedNovemberData[0] = digitizedNovemberData[0][(digitizedNovemberData[0] != 0).all(1)] # Fjerner nullene
 PlotDay(digitizedNovemberData, 0, "Pressure", 1008, 1017, False, floorLevels)
 print(digitizedNovemberData[0].describe())
 # Her ser vi at medianen er 1013.95, altså etasje 2
