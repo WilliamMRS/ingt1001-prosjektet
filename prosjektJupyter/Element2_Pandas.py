@@ -200,21 +200,51 @@ def column_values(df, column): # Returnerer alle unike verdier fra en spesifikk 
 
 #%%
 #22:
-def c_to_f(degrees_in_c):
+def c_to_f(degrees_in_c): #funksjon som konverterer fra celcius til fahrenheit
     degrees_in_f = round(degrees_in_c * (9/5) + 32,2)
     return round(degrees_in_f,2)
-def f_to_c(degrees_in_f):
+
+def f_to_c(degrees_in_f): #funksjon som konverterer fra fahrenheit til celcius
     degrees_in_c = (degrees_in_f-32)*(5/9)
     return round(degrees_in_c,2)
 #df_complete_cont["TAVG"] = c_to_f(df_complete_cont["TAVG"])
 
 #%%
-#Problem 2
-def Filtered(yolo):
+#3:
+def average_temp_by_continent(df, list_of_continents): # returnerer en liste med kontinenter og deres tilhørende gjennomsnittstemperatur
+    list_of_temperatures = []
+    for continent in list_of_continents:
+        average_temp = df[df["Continent"] == continent]["TAVG"].mean() #finner kontinentets gjennomsnittstemp
+        list_of_temperatures.append((continent, average_temp))  # legger en tuple med kontinentets navn og gjennomsnittstemp til i listen "list_of_temperatures" 
+    return list_of_temperatures # returnerer listen
+
+#%%
+#4:
+import matplotlib.pyplot as plt
+
+def plot_continents(df, continents):
+    fig, axes = plt.subplots(len(continents), 1, sharex=False, sharey=True, figsize = [25,25]) 
     
+    row = 0 # Variabelen brukes for å gå gjennom hver rad i vårt "subplot" som har like mange rader som det finnes kontinenter i "df_complete_cont"
+    
+    for continent in continents:
+        continent_df = df.loc[df["Continent"]==continent] # Lager en df som kun inneholder data fra det gitte kontinentet
+        countries_in_continent = column_values(continent_df, "Country") # Lager en liste med unike land i kontinentet
 
-
-filtered_df =  df_complete_cont["TAVG"] > 134 #verdien 134 er 56.7 fahrenheit. endret dermed alle verdier under 134 grader til False
-a = filtered_df.value_counts() # Ser hvor mage True verdier jeg får
-# Dette samsvarer ikke med dataen ettersom vi tok alle verdiene til fahrenheit og noe av dataen som allerede var der var fahrenheit fra før.
-
+        plt.figure(figsize = [15,10])
+        for country in countries_in_continent: # Går gjennom hvert land i kontinentet og plotter dem til riktig subplot
+            country_df = continent_df.loc[continent_df["Country"] == country]
+            fix_index(country_df) 
+            country_df["TAVG"].plot(ax = axes[row], label = country) # Plotter landets temperatur
+            
+        # Legger til tittler og legend (legend lar oss navngi hver linje)
+        axes[row].set_title(continent)
+        axes[row].set_xlabel("Chronological reading steps")
+        axes[row].set_ylabel("Temperature [C]")
+        axes[row].legend(loc="upper right")
+        
+        row += 1 # Går videre til neste "subplot"-rad
+    
+    
+    
+    
