@@ -104,25 +104,22 @@ def PlotDay(df, day_index, column, plotUpperAndLower, hline):
 floorLevels = [1016.3,1015.75,1015.25,1014.95,1014.55,1013.95,1013.5,1013.2,1012.8] 
 # 9 etasjer, bestemt ved hjelp av å trekke lineære vannrette linjer over punkt hvor dataene platået
 
-def createAdjustedGraphs(df):
+def createAdjustedGraphs(df, dataRange):
     # finn stigningstallet til punktene fra min og max grafene og forskyv rådatapunktene basert på verdien til
     # min/max grafene i forhold til referansepunktet som er å slutten.
     novemberData = []
+    df = df.reset_index()
     novemberData.append(df), novemberData.append(df), novemberData.append(df) # Dataframes som blir brukt nedenunder
-    
-    
-    # Plot raw data with minmax
+    # ----------------------------- Plot raw data with minmax
     minmaxseries = PlotDay(novemberData, 0, "Pressure", True, False)
     # Finner summen av topp og bunn snitt verdier. Ser på forskjellen mellom de 10 blokkene og den alle siste som brukes som referansepunkt
     referencePressureRange = minmaxseries[0][len(minmaxseries[0])-1] + minmaxseries[1][len(minmaxseries[1])-1]
     offsetvals = []
     for i in range(0,len(minmaxseries[0])):
         offsetvals.append(referencePressureRange - (minmaxseries[0][i] + minmaxseries[1][i]))
-        
-        
-    # Dytt all dataen opp med offsets (Ikke perfekt men er en god start)
+    # ----------------------------- Dytt all dataen opp med offsets (Ikke perfekt men er en god start)
     window = 1800 # Important that this is the same as the windows used for making mimmaxseries.
-    i = 14
+    i = 0
     y = 0
     for value in novemberData[1].Pressure:
         if(y >= len(minmaxseries[0])):
@@ -134,11 +131,9 @@ def createAdjustedGraphs(df):
             i = 0 # reset i
             y += 1 # next window offset
     PlotDay(novemberData, 1, "Pressure", True, False)
-    
-    
-    # Om 0 er forskjøvet med 8 millibar og 1 er forskjøvet med 7 millibar er formelen:
+    # ----------------------------- Om 0 er forskjøvet med 8 millibar og 1 er forskjøvet med 7 millibar er formelen:
     # newDatapoint = oldDatapoint + (8-7)/1800 * (1800-i), hvor i er det datapunktet som blir forskjøvet i denne rammen.
-    i = 14
+    i = 0
     y = 0
     for value in novemberData[2].Pressure:
         if(y >= len(minmaxseries[0])-1): # end one earlier, this may skew data little bit. But it shouldn't as it's rather close to reference at this point.
@@ -150,14 +145,13 @@ def createAdjustedGraphs(df):
         else:
             i = 0 # reset i
             y += 1 # next window offset  
-
     PlotDay(novemberData, 2, "Pressure", True, False)
     cutNovemberData = []
-    cutNovemberData.append(novemberData[2].iloc[0:20300])
+    cutNovemberData.append(novemberData[2].iloc[0:dataRange])
     PlotDay(cutNovemberData, 0, "Pressure", True, floorLevels)
     return cutNovemberData
     
-cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300])  
+cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300], 20300)
     
 # We've compensated for the weather changing the ambient pressure by finding the min-max range and
 # aligning the datapoints to a fixed reference point, in this case the last 1800 datapoints.
