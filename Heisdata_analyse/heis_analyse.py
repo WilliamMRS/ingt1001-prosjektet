@@ -78,7 +78,7 @@ def findHighestValues(window, day, df):
     return highestValues
 #%%
     
-def PlotDay(day_index, df):
+def PlotDay(day_index, df, plotUpperAndLower):
     start = 0
     stop = len(df[day_index]["Pressure"])
     print(len(df[day_index]["Pressure"]))
@@ -106,33 +106,32 @@ def PlotDay(day_index, df):
     # =============================================================================
     
     #ts = pd.Series(df['Pressure'].values) #omitting index=df['Time'] cause it's not helpful in this instance
-    
-    lv = findLowestValues(1800, day_index, df)
-    lvSeries = pd.Series(lv)
-    print(lvSeries.head(10))
-    
-    ax3=ax.twiny()
-    lvSeries.plot.line()
-    ax3.set_xlabel = "Timestep (s)"
-    ax3.set_ylabel = "Pressure"
-    ax3.set_xlim(0,lvSeries.size)
-    #maxY = lvSeries.max()
-    #minY = lvSeries.min()
-    #ax3.set_ylim(1008,1024) # use integers to offset, making graph readable
-    
-    
-    hv = findHighestValues(1800, day_index, df)
-    hvSeries = pd.Series(hv)
-    print(hvSeries.head(10))
-    
-    ax4 = ax3.twiny()
-    hvSeries.plot.line(color="red")
-    ax4.set_xlim(0,lvSeries.size)
-    #maxY = hvSeries.max()
-    #minY = hvSeries.min()
-    #ax4.set_ylim(1008,1024) # use integers to offset, making graph readable
+    if(plotUpperAndLower):
+        lv = findLowestValues(1800, day_index, df)
+        lvSeries = pd.Series(lv)
+        
+        ax3=ax.twiny()
+        lvSeries.plot.line()
+        ax3.set_xlabel = "Timestep (s)"
+        ax3.set_ylabel = "Pressure"
+        ax3.set_xlim(0,lvSeries.size)
+        #maxY = lvSeries.max()
+        #minY = lvSeries.min()
+        #ax3.set_ylim(1008,1024) # use integers to offset, making graph readable
+        
+        
+        hv = findHighestValues(1800, day_index, df)
+        hvSeries = pd.Series(hv)
+        
+        ax4 = ax3.twiny()
+        hvSeries.plot.line(color="red")
+        ax4.set_xlim(0,lvSeries.size)
+        #maxY = hvSeries.max()
+        #minY = hvSeries.min()
+        #ax4.set_ylim(1008,1024) # use integers to offset, making graph readable
     plt.show()
-    return [hvSeries, lvSeries]
+    if(plotUpperAndLower):
+        return [hvSeries, lvSeries]
 
 #%%
 
@@ -147,18 +146,16 @@ novemberData.append(data_from_all_days[7].iloc[0:20300]) #Grab data that's usefu
 novemberData.append(data_from_all_days[7].iloc[0:20300]) #Duplicate more data for further analysis
 novemberData.append(data_from_all_days[7].iloc[0:20300]) #Duplicate more data for further analysis
 #PlotDay(7, data_from_all_days)
-minmaxseries = PlotDay(0, novemberData)
+minmaxseries = PlotDay(0, novemberData, True)
 
 
 #%%
 # use end of graph as reference
 referencePressureRange = minmaxseries[0][10] + minmaxseries[1][10]
-print(referencePressureRange)
 
 offsetvals = []
 for i in range(0,11):
     offsetvals.append(referencePressureRange - (minmaxseries[0][i] + minmaxseries[1][i]))
-print(offsetvals)
 
 # push all data up by the offsetvals (this is a crude method, but works for early approximation)
 window = 1800 # Important that this is the same as the windows used for making mimmaxseries.
@@ -175,7 +172,7 @@ for value in novemberData[1].Pressure:
     else:
         i = 0 # reset i
         y += 1 # next window offset
-PlotDay(1, novemberData)
+PlotDay(1, novemberData, True)
 
 #%%
 
@@ -198,14 +195,11 @@ for value in novemberData[2].Pressure:
         i = 0 # reset i
         y += 1 # next window offset
 
-PlotDay(2, novemberData)
-#novemberData[2]["Pressure"] = novemberData[2]["Pressure"].iloc[3000:5000]
+PlotDay(2, novemberData, True)
 
 cutNovemberData = []
 cutNovemberData.append(novemberData[2].iloc[12000:15600])
-
-print(len(cutNovemberData[0]))
-PlotDay(0, cutNovemberData)
+PlotDay(0, cutNovemberData, True)
 
 # We've compensated for the weather changing the ambient pressure by finding the min-max range and
 # aligning the datapoints to a fixed reference point, in this case the last 1800 datapoints.
@@ -218,15 +212,18 @@ PlotDay(0, cutNovemberData)
 
 # Decide set limits and digitize the modified pressure graph
 
-floorLevels = [1016.2,1015.85,1015.55,1015.45,1015.3,1014.95,1014.75,1014.6,1014.32] # 9 etasjer, bestemt ved hjelp av å trekke linjer over et bilde.
+floorLevels = [1016.2,1015.85,1015.55,1015.45,1015.3,1014.95,1014.75,1014.6,1014.32] 
+# 9 etasjer, bestemt ved hjelp av å trekke lineære vannrette linjer over punkt hvor dataene platået
 
 newDataPoints = []
+
+print("Length of raw data",len(cutNovemberData[0]["Pressure"]))
 
 for value in (cutNovemberData[0]["Pressure"]):
     foundLimits = False
     upperval = 0 # higher level selected for comparison
     lowerval = 0 # lower value selected for comparison
-
+    
     for i in range(0, len(floorLevels)): #loop through all floorlevels
         if(value > floorLevels[i]):
             foundLimits = True
@@ -244,20 +241,16 @@ for value in (cutNovemberData[0]["Pressure"]):
                 newDataPoints.append(upperval)
                 break
 
-print(newDataPoints)
+print("LENGTH OF DATAPOINTS", len(newDataPoints))
 
 # Build dataframe with new values
 digitizedNovemberData = []
 digitizedNovemberData.append(pd.DataFrame())
 digitizedNovemberData[0].insert(0, "Pressure", pd.Series(newDataPoints), True)
-
 resetDf = cutNovemberData[0].reset_index(drop=True)
-print(resetDf["Time"])
-
 digitizedNovemberData[0].insert(1, "Time", resetDf["Time"], True)
-print(digitizedNovemberData[0].describe())
 
-PlotDay(0, digitizedNovemberData)
+PlotDay(0, digitizedNovemberData, False)
 
 
 
