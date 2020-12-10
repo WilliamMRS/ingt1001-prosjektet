@@ -109,17 +109,21 @@ def createAdjustedGraphs(df):
     # min/max grafene i forhold til referansepunktet som er å slutten.
     novemberData = []
     novemberData.append(df), novemberData.append(df), novemberData.append(df) # Dataframes som blir brukt nedenunder
+    
+    
+    # Plot raw data with minmax
     minmaxseries = PlotDay(novemberData, 0, "Pressure", True, False)
     # Finner summen av topp og bunn snitt verdier. Ser på forskjellen mellom de 10 blokkene og den alle siste som brukes som referansepunkt
     referencePressureRange = minmaxseries[0][len(minmaxseries[0])-1] + minmaxseries[1][len(minmaxseries[1])-1]
     offsetvals = []
     for i in range(0,len(minmaxseries[0])):
         offsetvals.append(referencePressureRange - (minmaxseries[0][i] + minmaxseries[1][i]))
+        
+        
     # Dytt all dataen opp med offsets (Ikke perfekt men er en god start)
     window = 1800 # Important that this is the same as the windows used for making mimmaxseries.
     i = 14
     y = 0
-    
     for value in novemberData[1].Pressure:
         if(y >= len(minmaxseries[0])):
             break
@@ -130,9 +134,9 @@ def createAdjustedGraphs(df):
             i = 0 # reset i
             y += 1 # next window offset
     PlotDay(novemberData, 1, "Pressure", True, False)
-    # Now make a y = ax + b function between each line of the minmaxpoints (1800 window)
-    # to push the lines. Take the total offset - the local offset.
-    # For eksempel, om 0 er forskjøvet med 8 millibar og 1 er forskjøvet med 7 millibar er formelen:
+    
+    
+    # Om 0 er forskjøvet med 8 millibar og 1 er forskjøvet med 7 millibar er formelen:
     # newDatapoint = oldDatapoint + (8-7)/1800 * (1800-i), hvor i er det datapunktet som blir forskjøvet i denne rammen.
     i = 14
     y = 0
