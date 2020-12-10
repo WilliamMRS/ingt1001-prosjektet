@@ -113,7 +113,7 @@ def createAdjustedGraphs(df):
     # Finner summen av topp og bunn snitt verdier. Ser på forskjellen mellom de 10 blokkene og den alle siste som brukes som referansepunkt
     referencePressureRange = minmaxseries[0][len(minmaxseries[0])-1] + minmaxseries[1][len(minmaxseries[1])-1]
     offsetvals = []
-    for i in range(0,11):
+    for i in range(0,len(minmaxseries[0])):
         offsetvals.append(referencePressureRange - (minmaxseries[0][i] + minmaxseries[1][i]))
     # Dytt all dataen opp med offsets (Ikke perfekt men er en god start)
     window = 1800 # Important that this is the same as the windows used for making mimmaxseries.
@@ -121,7 +121,7 @@ def createAdjustedGraphs(df):
     y = 0
     
     for value in novemberData[1].Pressure:
-        if(y >= 11):
+        if(y >= len(minmaxseries[0])):
             break
         if (i < window):
             novemberData[1]["Pressure"][i + y*window] = value + offsetvals[y]/2
@@ -137,7 +137,7 @@ def createAdjustedGraphs(df):
     i = 14
     y = 0
     for value in novemberData[2].Pressure:
-        if(y >= 10): # end one earlier, this may skew data little bit. But it shouldn't as it's rather close to reference at this point.
+        if(y >= len(minmaxseries[0])-1): # end one earlier, this may skew data little bit. But it shouldn't as it's rather close to reference at this point.
             break
         if (i < window):
             newValue = value + (offsetvals[y]-offsetvals[y+1])/2 /window * (window-i)
