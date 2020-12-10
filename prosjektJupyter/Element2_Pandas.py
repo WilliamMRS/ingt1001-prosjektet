@@ -41,37 +41,40 @@ def drop_dup_nan(df): #lager så en funksjon som dropper duplikerte rader og rad
 #%%
 #4:
 def split_NAME(df):
-    # Splitter "NAME" kolonnen med hensyn på komma.
-    # Det gir en "Series" med to kolonner, hvor første kolonne [0] er area, og andre kolonne [1] er country.
-    area = df["NAME"].str.split(',', expand=True)[0]
-    country_and_city = df["NAME"].str.split(',', expand=True)[1]
-    
-    # Setter så inn kolonnene i dataframen:
-    df["AREA"] = area
-    df["COUNTRY"] = country_and_city
-    # Og sletter den originale kolonnen NAME
-    del df["NAME"]
+    if "NAME" in df.columns:
+        # Splitter "NAME" kolonnen med hensyn på komma.
+        # Det gir en "Series" med to kolonner, hvor første kolonne [0] er area, og andre kolonne [1] er country.
+        area = df["NAME"].str.split(',', expand=True)[0]
+        country_and_city = df["NAME"].str.split(',', expand=True)[1]
+
+        # Setter så inn kolonnene i dataframen:
+        df["AREA"] = area
+        df["COUNTRY"] = country_and_city
+        # Og sletter den originale kolonnen NAME
+        del df["NAME"]
 #split_NAME(df_opg1)
 
 #%%
 #5:
 
 def split_COUNTRY(df):
-    # Vi skal dele opp "COUNTRY"-kolonnen i to kolonner CITY og COUNTRY
-    # Vi splitter den kun en gang (n=1) fra høyre side (ergo "rsplit" istedet for "split") med hensyn på mellomrom. 
-    # Vi splitter fra høyre slik at radene som kun inneholder "country" og ikke "city" kommer i riktig kolonne.
-    city = df["COUNTRY"].str.rsplit(' ', expand=True, n=1)[0] #alle byene
-    country = df["COUNTRY"].str.rsplit(' ', expand=True, n=1)[1] #alle landene
-    
-    # Setter alle lands -og by-kodene inn i dataframen:
-    df["COUNTRY"] = country
-    df["CITY"] = city
+    if "COUNTRY" in df.columns:
+        # Vi skal dele opp "COUNTRY"-kolonnen i to kolonner CITY og COUNTRY
+        # Vi splitter den kun en gang (n=1) fra høyre side (ergo "rsplit" istedet for "split") med hensyn på mellomrom. 
+        # Vi splitter fra høyre slik at radene som kun inneholder "country" og ikke "city" kommer i riktig kolonne.
+        city = df["COUNTRY"].str.rsplit(' ', expand=True, n=1)[0] #alle byene
+        country = df["COUNTRY"].str.rsplit(' ', expand=True, n=1)[1] #alle landene
+
+        # Setter alle lands -og by-kodene inn i dataframen:
+        df["COUNTRY"] = country
+        df["CITY"] = city
 #split_COUNTRY(df_opg1)
 
 #%%
 #6:
 def fix_COUNTRY(df):  #bruker COUNTRY-kolonnen fra opg 4.
-    df["COUNTRY"] = df["COUNTRY"].str.rsplit(' ', expand=True, n=1)[1] # Kun landskoder
+    if "COUNTRY" in df.columns:
+        df["COUNTRY"] = df["COUNTRY"].str.rsplit(' ', expand=True, n=1)[1] # Kun landskoder
 
 #%%
 #7:
@@ -245,6 +248,53 @@ def plot_continents(df, continents):
         
         row += 1 # Går videre til neste "subplot"-rad
     
+#%%
+#5:
+old_oslo = pd.read_csv('Datasets/Weather/extra/old_oslo.csv') #henter "old_oslo.csv"-filen
+
+# Gir nye navn til kolonnene for å få dem til å samsvare med resten av df-ene.
+old_oslo.rename(columns={"Name":"NAME", "Time(norwegian mean time)":"DATE", "Mean air temperature (24 h)":"TAVG"}, inplace=True)
+
+def get_specific_df(df, area, year): # funksjon som returnerer en ny df, basert på område og årstall fra en annen df.
+    # I denne oppgaven blir funksjonen brukt til å danne en ny df for oslo i 2019.
+    pd.options.mode.chained_assignment = None # Vi fikk en feilmelding til tross for at koden kjørte som den skulle, så vi tar den vekk.
     
+    specific_df = df[df["AREA"] == area] # Henter det riktige området.
+    
+    dates = pd.to_datetime(specific_df["DATE"])
+    specific_df["year"] = dates.dt.year 
+    specific_df = specific_df[specific_df["year"] == year]
+    fix_index(specific_df)
+    return specific_df
+    
+def plot_dfs(dfs, column, labels, title = "", x_label = "", y_label = ""):
+    # funksjonen plotter kollonnen "column" fra alle df-er i en liste 'dfs'.
+    # den navngir linjene de korresponderende verdiene fra listen "labels".
+    # funksjonen tar også inn parametrene title (tittel på plotten), x_label og y_label (navn på aksene).
+    
+    label_index = 0 # brukes for å bestemme hvilken "label" hver plot skal gis.
+    for df in dfs:
+        plt.plot(df[column], label = labels[label_index])
+        label_index += 1
+    plt.xlabel(x_label)
+    plt.ylabel(y_label)
+    plt.legend(loc="upper right")
+    plt.show()
+    
+#%% 
+#6:
+def temperature_differences(df, countries): # Denne funksjonen returnerer differansen mellom minimum-verdien og maximum-verdien til målingene gjort i et land. 
+    temp_differences = [] 
+    
+    # for-loopen går gjennom hvert land i "countries". Hvor "countries" er en liste som inneholder alle land som finnes i datasettet "df".
+    for country in countries: 
+        country_df = df[df["Country"] == country] # lager en df "country_df" for hvert land
+        maxval = country_df["TAVG"].max() # finner høyeste temperaturverdi
+        minval = country_df["TAVG"].min() # og laveste verdi
+        diff = maxval - minval # differansen mellom høyeste og laveste
+        temp_differences.append([country, diff]) #legger både landet og landets differanse til i listen "temp_differences".
+        
+    temp_differences.sort(key=lambda tup: tup[1]) # Sorterer listen "temp_differences" fra laveste til høyeste temperatur-differanse.
+    return temp_differences
     
     
