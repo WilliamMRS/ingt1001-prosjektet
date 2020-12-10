@@ -78,21 +78,33 @@ def findHighestValues(window, day, df):
     return highestValues
 #%%
     
-def PlotDay(day_index, df, plotUpperAndLower):
+def PlotDay(day_index, df, plotUpperAndLower, hline):
     start = 0
     stop = len(df[day_index]["Pressure"])
     print(len(df[day_index]["Pressure"]))
     # Data to plot
     
-    fig, ax=plt.subplots(figsize=(12,8))
+    fig, ax=plt.subplots(figsize=(24,14))
     plt.title("26. Novemeber")
     df[day_index].plot(x="Time", y=["Pressure"], ax=ax, color="green")
     ax.set_ylabel = "Pressure"
     ax.set_xlim(start,stop)
     #maxY = data_from_all_days[day_index]["Pressure"][start:stop].max()
     #minY = data_from_all_days[day_index]["Pressure"][start:stop].min()
-    ax.set_ylim(1007,1018) # use integers to offset, making graph readable
+    ax.set_ylim(1010,1018) # use integers to offset, making graph readable
     
+    [1016.3,1015.75,1015.25,1014.95,1014.55,1013.95,1013.5,1013.2,1012.8] 
+    if(hline):
+        ax.axhline(y=1016.3)
+        ax.axhline(y=1015.75)
+        ax.axhline(y=1015.25)
+        ax.axhline(y=1014.95)
+        ax.axhline(y=1014.55)
+        ax.axhline(y=1013.95)
+        ax.axhline(y=1013.5)
+        ax.axhline(y=1013.2)
+        ax.axhline(y=1012.8)        
+
     # Building accel graph
     # =============================================================================
     # ax2=ax.twinx() # Cloning previous ax
@@ -146,7 +158,7 @@ novemberData.append(data_from_all_days[7].iloc[0:20300]) #Grab data that's usefu
 novemberData.append(data_from_all_days[7].iloc[0:20300]) #Duplicate more data for further analysis
 novemberData.append(data_from_all_days[7].iloc[0:20300]) #Duplicate more data for further analysis
 #PlotDay(7, data_from_all_days)
-minmaxseries = PlotDay(0, novemberData, True)
+minmaxseries = PlotDay(0, novemberData, True, False)
 
 
 #%%
@@ -172,7 +184,7 @@ for value in novemberData[1].Pressure:
     else:
         i = 0 # reset i
         y += 1 # next window offset
-PlotDay(1, novemberData, True)
+PlotDay(1, novemberData, True, False)
 
 #%%
 
@@ -195,11 +207,11 @@ for value in novemberData[2].Pressure:
         i = 0 # reset i
         y += 1 # next window offset
 
-PlotDay(2, novemberData, True)
+PlotDay(2, novemberData, True, False)
 
 cutNovemberData = []
-cutNovemberData.append(novemberData[2].iloc[12000:15600])
-PlotDay(0, cutNovemberData, True)
+cutNovemberData.append(novemberData[2].iloc[0:20300])
+PlotDay(0, cutNovemberData, True, True)
 
 # We've compensated for the weather changing the ambient pressure by finding the min-max range and
 # aligning the datapoints to a fixed reference point, in this case the last 1800 datapoints.
@@ -212,7 +224,7 @@ PlotDay(0, cutNovemberData, True)
 
 # Decide set limits and digitize the modified pressure graph
 
-floorLevels = [1016.2,1015.85,1015.55,1015.45,1015.3,1014.95,1014.75,1014.6,1014.32] 
+floorLevels = [1016.3,1015.75,1015.25,1014.95,1014.55,1013.95,1013.5,1013.2,1012.8] 
 # 9 etasjer, bestemt ved hjelp av å trekke lineære vannrette linjer over punkt hvor dataene platået
 
 newDataPoints = []
@@ -230,6 +242,10 @@ for value in (cutNovemberData[0]["Pressure"]):
             if(i != 0):
                 upperval = floorLevels[i-1] # If value is greater than this floorlevel, the last floorlevel was uppervalue.
                 lowerval = floorLevels[i] # if value is greater than this, this means that this is the lower level.
+        if(i == len(floorLevels)-1 and foundLimits == False):
+            #print("LOW:", floorLevels[i])
+            newDataPoints.append(floorLevels[i])
+            break
         # figure out what value is closest to the value looking for.
         if(foundLimits):
             upperdiff = abs(upperval - value)
@@ -250,8 +266,14 @@ digitizedNovemberData[0].insert(0, "Pressure", pd.Series(newDataPoints), True)
 resetDf = cutNovemberData[0].reset_index(drop=True)
 digitizedNovemberData[0].insert(1, "Time", resetDf["Time"], True)
 
-PlotDay(0, digitizedNovemberData, False)
+PlotDay(0, digitizedNovemberData, False, True)
 
+#%%
+
+print(digitizedNovemberData[0].describe())
+# Her ser vi at medianen er 1013.95, altså etasje 2
+
+print(digitizedNovemberData[0]["Pressure"].value_counts())
 
 
 
