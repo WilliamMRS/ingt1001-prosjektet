@@ -130,7 +130,7 @@ def createAdjustedGraphs(df, dataRange, nameOfGraph):
         else:
             i = 0 # reset i
             y += 1 # next window offset
-    PlotDay(novemberData, 1, "Pressure", True, False, nameOfGraph)
+    #PlotDay(novemberData, 1, "Pressure", True, False, nameOfGraph)
     # ----------------------------- Om 0 er forskjøvet med 8 millibar og 1 er forskjøvet med 7 millibar er formelen:
     # newDatapoint = oldDatapoint + (8-7)/1800 * (1800-i), hvor i er det datapunktet som blir forskjøvet i denne rammen.
     i = 0
@@ -145,13 +145,11 @@ def createAdjustedGraphs(df, dataRange, nameOfGraph):
         else:
             i = 0 # reset i
             y += 1 # next window offset  
-    PlotDay(novemberData, 2, "Pressure", True, False, nameOfGraph)
+    #PlotDay(novemberData, 2, "Pressure", True, False, nameOfGraph)
     cutNovemberData = []
     cutNovemberData.append(novemberData[2].iloc[0:dataRange])
     PlotDay(cutNovemberData, 0, "Pressure", True, floorLevels, nameOfGraph)
     return cutNovemberData
-
-cutNovemberData = createAdjustedGraphs(data_from_all_days[0].iloc[0:20300], 20300, "1. Desember")
 
 # We've compensated for the weather changing the ambient pressure by finding the min-max range and
 # aligning the datapoints to a fixed reference point, in this case the last 1800 datapoints.
@@ -200,11 +198,13 @@ def modifyPressureGraph(): # Kind of digitizes the previous graph
     
 data_from_all_days = separate_by_column_values(df, "Date")
 
+
+cutNovemberData = createAdjustedGraphs(data_from_all_days[0].iloc[0:20300], 20300, "1. Desember")
 cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300], 20300, "26. November")
 
 digitizedNovemberData = modifyPressureGraph()
 digitizedNovemberData[0] = digitizedNovemberData[0][(digitizedNovemberData[0] != 0).all(1)] # Fjerner nullene
-PlotDay(digitizedNovemberData, 0, "Pressure", False, floorLevels)
+PlotDay(digitizedNovemberData, 0, "Pressure", False, floorLevels, "26. November")
 print(digitizedNovemberData[0].describe())
 # Her ser vi at medianen er 1013.95, altså etasje 2
 print(digitizedNovemberData[0]["Pressure"].value_counts())
