@@ -84,7 +84,7 @@ def PlotDay(day_index, df):
     print(len(df[day_index]["Pressure"]))
     # Data to plot
     
-    fig, ax=plt.subplots(figsize=(28,22))
+    fig, ax=plt.subplots(figsize=(12,8))
     plt.title("26. Novemeber")
     df[day_index].plot(x="Time", y=["Pressure"], ax=ax, color="green")
     ax.set_ylabel = "Pressure"
@@ -214,26 +214,50 @@ PlotDay(0, cutNovemberData)
 # value-steps/ranges. We know there are 9 floors in total and we assume the elevator has visited them
 # all in a given day.
 
+#%%
 
+# Decide set limits and digitize the modified pressure graph
 
+floorLevels = [1016.2,1015.85,1015.55,1015.45,1015.3,1014.95,1014.75,1014.6,1014.32] # 9 etasjer, bestemt ved hjelp av å trekke linjer over et bilde.
 
+newDataPoints = []
 
+for value in (cutNovemberData[0]["Pressure"]):
+    foundLimits = False
+    upperval = 0 # higher level selected for comparison
+    lowerval = 0 # lower value selected for comparison
 
+    for i in range(0, len(floorLevels)): #loop through all floorlevels
+        if(value > floorLevels[i]):
+            foundLimits = True
+            if(i != 0):
+                upperval = floorLevels[i-1] # If value is greater than this floorlevel, the last floorlevel was uppervalue.
+                lowerval = floorLevels[i] # if value is greater than this, this means that this is the lower level.
+        # figure out what value is closest to the value looking for.
+        if(foundLimits):
+            upperdiff = abs(upperval - value)
+            lowerdiff = abs(lowerval - value)
+            if upperdiff > lowerdiff: # lowerdiff is closest, pick lowerval
+                newDataPoints.append(lowerval)
+                print("picked", lowerval, "for value", value)
+                break
+            else:
+                newDataPoints.append(upperval)
+                print("picked", upperval, "for value", value)
+                break
 
+print(newDataPoints)
 
+# Build dataframe with new values
+digitizedNovemberData = []
+digitizedNovemberData.append(pd.DataFrame())
+digitizedNovemberData[0].insert(0, "Pressure", pd.Series(newDataPoints), True)
+resetDf = cutNovemberData[0].reset_index(drop=True)
+print(resetDf["Time"])
+digitizedNovemberData[0]["Time"] = resetDf["Time"]
+print(digitizedNovemberData[0].describe())
 
-
-
-
-
-
-
-
-
-
-
-
-
+PlotDay(0, digitizedNovemberData)
 
 
 
