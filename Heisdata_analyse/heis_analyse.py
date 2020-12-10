@@ -1,13 +1,7 @@
 3#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""
-Created on Mon Dec  7 11:32:31 2020
-
-@author: erlingkornstadsmenes
-"""
 
 import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
 
 #Importere dataset
@@ -90,9 +84,9 @@ def PlotDay(day_index, df):
     print(len(df[day_index]["Pressure"]))
     # Data to plot
     
-    fig, ax=plt.subplots(figsize=(12,8))
+    fig, ax=plt.subplots(figsize=(28,22))
     plt.title("26. Novemeber")
-    df[day_index].plot(x="Time", y=["Pressure"], ax=ax, color="yellow")
+    df[day_index].plot(x="Time", y=["Pressure"], ax=ax, color="green")
     ax.set_ylabel = "Pressure"
     ax.set_xlim(start,stop)
     #maxY = data_from_all_days[day_index]["Pressure"][start:stop].max()
@@ -150,12 +144,13 @@ def PlotDay(day_index, df):
 # min/max grafene i forhold til referansepunktet som er å slutten.
 novemberData = []
 novemberData.append(data_from_all_days[7].iloc[0:20300]) #Grab data that's useful
-novemberData.append(data_from_all_days[7].iloc[0:20300]) #Grab data that's useful again for later
+novemberData.append(data_from_all_days[7].iloc[0:20300]) #Duplicate more data for further analysis
+novemberData.append(data_from_all_days[7].iloc[0:20300]) #Duplicate more data for further analysis
 #PlotDay(7, data_from_all_days)
 minmaxseries = PlotDay(0, novemberData)
 
-print(minmaxseries[0])
 
+#%%
 # use end of graph as reference
 referencePressureRange = minmaxseries[0][10] + minmaxseries[1][10]
 print(referencePressureRange)
@@ -163,7 +158,6 @@ print(referencePressureRange)
 offsetvals = []
 for i in range(0,11):
     offsetvals.append(referencePressureRange - (minmaxseries[0][i] + minmaxseries[1][i]))
-    
 print(offsetvals)
 
 # push all data up by the offsetvals (this is a crude method, but works for early approximation)
@@ -171,23 +165,75 @@ window = 1800 # Important that this is the same as the windows used for making m
 i = 14
 y = 0
 
-print(novemberData[1]["Pressure"][i])
-print(offsetvals[y])
-print(len(novemberData))
-print("November data over")
-
-for value in novemberData[0]["Pressure"]:
-    for value in novemberData[0].Pressure:
-        if(y >= 11):
-            break
-        if (i < window):
-            novemberData[1]["Pressure"][i + y*1800] = value + offsetvals[y]/2
-            i += 1
-        else:
-            i = 0 # reset i
-            y += 1 # next window offset
-
+#%%
+for value in novemberData[1].Pressure:
+    if(y >= 11):
+        break
+    if (i < window):
+        novemberData[1]["Pressure"][i + y*1800] = value + offsetvals[y]/2
+        i += 1
+    else:
+        i = 0 # reset i
+        y += 1 # next window offset
 PlotDay(1, novemberData)
+
+#%%
+
+# Now make a y = ax + b function between each line of the minmaxpoints (1800 window)
+# Then adjust each of the 1800 datapoints inside of y=ax+b line gradually (so y=a*532+b) for point 532
+
+# to push the lines. Take the total offset - the local offset.
+# For example, if 0 is offset by 8 points, and 1 is offset by 7 points; then the formula is:
+# newDatapoint = oldDatapoint + (8-7)/1800 * (1800-i), where i is the current datapoint it is evaluating.
+i = 14
+y = 0
+for value in novemberData[2].Pressure:
+    if(y >= 10): # end one earlier, this may skew data little bit. But it shouldn't as it's rather close to reference at this point.
+        break
+    if (i < window):
+        newValue = value + (offsetvals[y]-offsetvals[y+1])/2 /1800 * (1800-i)
+        novemberData[2]["Pressure"][i + y*1800] = newValue
+        i += 1
+    else:
+        i = 0 # reset i
+        y += 1 # next window offset
+
+PlotDay(2, novemberData)
+#novemberData[2]["Pressure"] = novemberData[2]["Pressure"].iloc[3000:5000]
+
+cutNovemberData = []
+cutNovemberData.append(novemberData[2].iloc[12000:15600])
+
+print(len(cutNovemberData[0]))
+PlotDay(0, cutNovemberData)
+
+# We've compensated for the weather changing the ambient pressure by finding the min-max range and
+# aligning the datapoints to a fixed reference point, in this case the last 1800 datapoints.
+# This way, the pressure data represents each floor with more or less the same values, making it
+# possible to read what floor the elevator is on at a given time, if we represent the floors as given
+# value-steps/ranges. We know there are 9 floors in total and we assume the elevator has visited them
+# all in a given day.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
