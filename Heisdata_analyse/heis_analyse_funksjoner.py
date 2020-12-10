@@ -69,6 +69,7 @@ def findHighestValues(window, day, df):
     return highestValues
     
 # PLots a day from a dataframe.
+# needs a dataframe array, the day of the df-array, column. upper and lower shows minmax lines. hline will plot floors.
 def PlotDay(df, day_index, column, plotUpperAndLower, hline):
     start = 0
     stop = len(df[day_index][column])
@@ -151,7 +152,7 @@ def createAdjustedGraphs(df, dataRange):
     PlotDay(cutNovemberData, 0, "Pressure", True, floorLevels)
     return cutNovemberData
     
-cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300], 20300)
+cutNovemberData = createAdjustedGraphs(data_from_all_days[0].iloc[0:20300], 20300)
     
 # We've compensated for the weather changing the ambient pressure by finding the min-max range and
 # aligning the datapoints to a fixed reference point, in this case the last 1800 datapoints.
