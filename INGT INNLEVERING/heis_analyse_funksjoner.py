@@ -7,8 +7,6 @@ import matplotlib.pyplot as plt
 #Importere dataset
 df = pd.read_csv("./Maalinger.csv")
 df.columns = ["Date", "Time", "Temp_hum", "Temp_pres", "Humidity", "Pressure", "Acceleration"]
-print(df.describe())
-print(df.head(5))
 df.drop_duplicates() #Fjerne duplikatverdier
 
 vmin1 = 900
