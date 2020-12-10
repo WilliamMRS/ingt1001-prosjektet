@@ -277,3 +277,7 @@ graph(["Europe", "Asia", "Africa", "Oceania", "Americas"])
   #  plt.xlabel('Years')
     #plt.ylabel('Consumption in TWh Across the World')
    # plt.title('Consumption in TWh Across the World in US, that are over average')
+   
+   
+   
+   

@@ -244,4 +244,3 @@ def plot_compare_w_oslo_2019(dataframe,legendnavn):
     fig, ax = plt.subplots(2, 1, figsize=(20,10))
     df_oslo.plot(x="DATE", y="TAVG", ax=ax[0]).legend(["Oslo 2019"])
     dataframe.plot(x="DATE", y="TAVG", ax=ax[1], color="darkorange").legend([legendnavn])
-    print(plot_compare_w_oslo_2019(df_old_oslo))
