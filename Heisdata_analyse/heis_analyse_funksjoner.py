@@ -11,6 +11,17 @@ print(df.describe())
 print(df.head(5))
 df.drop_duplicates() #Fjerne duplikatverdier
 
+vmin1 = 900
+vmax1 = 1050
+column1 = "Pressure"
+
+vmin2 = 5
+vmax2 = 16
+column2 = "Acceleration"
+
+df = df[df[column1].between(vmin1, vmax1)]
+df = df[df[column2].between(vmin2, vmax2)]
+
 # Separerer målingene utifra hvilke dager de ble målt og lagrer en df fra
 # hver dag i listen data_from_all_days
 
@@ -139,7 +150,7 @@ def createAdjustedGraphs(df):
     PlotDay(novemberData, 2, "Pressure", 1008, 1017, True, False)
     cutNovemberData = []
     cutNovemberData.append(novemberData[2].iloc[0:20300])
-    PlotDay(cutNovemberData, 0, "Pressure", 1008, 1017, True, floorLevels)
+    PlotDay(cutNovemberData, 0, "Pressure", 1011, 1017, True, floorLevels)
     return cutNovemberData
     
 cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300])  
@@ -151,7 +162,7 @@ cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300])
 # value-steps/ranges. We know there are 9 floors in total and we assume the elevator has visited them
 # all in a given day.
 
-def modifyPressureGraph():
+def modifyPressureGraph(): # Kind of digitizes the previous graph
     # Decide set limits and modify the pressure graph
     newDataPoints = []
     for value in (cutNovemberData[0]["Pressure"]):
@@ -180,8 +191,6 @@ def modifyPressureGraph():
                     newDataPoints.append(upperval)
                     break
     
-    print("LENGTH OF DATAPOINTS", len(newDataPoints))
-    
     # Build dataframe with new values
     digitizedNovemberData = []
     digitizedNovemberData.append(pd.DataFrame())
@@ -192,7 +201,7 @@ def modifyPressureGraph():
 
 digitizedNovemberData = modifyPressureGraph()
 digitizedNovemberData[0] = digitizedNovemberData[0][(digitizedNovemberData[0] != 0).all(1)] # Fjerner nullene
-PlotDay(digitizedNovemberData, 0, "Pressure", 1008, 1017, False, floorLevels)
+PlotDay(digitizedNovemberData, 0, "Pressure", 1012, 1017, False, floorLevels)
 print(digitizedNovemberData[0].describe())
 # Her ser vi at medianen er 1013.95, altså etasje 2
 print(digitizedNovemberData[0]["Pressure"].value_counts())
