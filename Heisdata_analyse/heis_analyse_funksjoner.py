@@ -196,25 +196,24 @@ def modifyPressureGraph(): # Kind of digitizes the previous graph
 
 #def createBarGraphOfFloors():
 
-
-data_from_all_days = separate_by_column_values(df, "Date")
-
-cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300], 20300)
-
-digitizedNovemberData = modifyPressureGraph()
-digitizedNovemberData[0] = digitizedNovemberData[0][(digitizedNovemberData[0] != 0).all(1)] # Fjerner nullene
-PlotDay(digitizedNovemberData, 0, "Pressure", False, floorLevels)
-print(digitizedNovemberData[0].describe())
-# Her ser vi at medianen er 1013.95, altså etasje 2
-print(digitizedNovemberData[0]["Pressure"].value_counts())
-# Her kan vi telle antall datapunkt heisa har på ulike nivå. Slik kan vi se hvilke etasjer heisen tilbringer mest tid i.
-# Om vi kunne fått renere data kunne vi og funnet ut hvilken heisturer som er mest populære.
-# Vi kunne og estimert strømforbruken til heisa.
-
-
+def processGraphs():
+    data_from_all_days = separate_by_column_values(df, "Date")
+    cutNovemberData = createAdjustedGraphs(data_from_all_days[7].iloc[0:20300], 20300)
+    
+def finalGraph():
+    digitizedNovemberData = modifyPressureGraph()
+    digitizedNovemberData[0] = digitizedNovemberData[0][(digitizedNovemberData[0] != 0).all(1)] # Fjerner nullene
+    PlotDay(digitizedNovemberData, 0, "Pressure", False, floorLevels)
+    print(digitizedNovemberData[0].describe())
+    # Her ser vi at medianen er 1013.95, altså etasje 2
+    print(digitizedNovemberData[0]["Pressure"].value_counts())
+    # Her kan vi telle antall datapunkt heisa har på ulike nivå. Slik kan vi se hvilke etasjer heisen tilbringer mest tid i.
+    # Om vi kunne fått renere data kunne vi og funnet ut hvilken heisturer som er mest populære.
+    # Vi kunne og estimert strømforbruken til heisa.
 
 
-
+processGraphs()
+finalGraph()
 
 
 
